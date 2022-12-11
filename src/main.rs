@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-#![allow(unused_variables)]
+// #![allow(unused_variables)]
 
 use clap::{Parser, Subcommand};
 use colored::*;
@@ -8,17 +8,6 @@ use std::thread::sleep;
 use std::time::{Duration, SystemTime};
 use std::{fmt, fs};
 extern crate alloc;
-
-// #[derive(Parser, Debug)]
-// #[clap(author,version,about,long_about=None)]
-// struct Args {
-//     /// using stopwatch
-//     #[clap[short,long]]
-//     stopwatch: bool,
-//     /// using timer
-//     #[clap[short,long]]
-//     timer: bool,
-// }
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -49,12 +38,12 @@ enum Paths {
 }
 
 impl fmt::Display for Paths {
-    fn fmt(&self, f: &mut fmt::Formatter) -> &str {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Paths::Stopwatch => "/tmp/wooclock-stopwatch.txt",
-            Paths::StopwatchStop => "/tmp/wooclock-stopwatch-stop.txt",
-            Paths::Timer => "/tmp/wooclock-timer.txt",
-            Paths::TimerStop => "/tmp/wooclock-timer-stop.txt",
+            Paths::Stopwatch => write!(f, "/tmp/wooclock-stopwatch.txt"),
+            Paths::StopwatchStop => write!(f, "/tmp/wooclock-stopwatch-stop.txt"),
+            Paths::Timer => write!(f, "/tmp/wooclock-timer.txt"),
+            Paths::TimerStop => write!(f, "/tmp/wooclock-timer-stop.txt"),
         }
     }
 }
@@ -65,23 +54,24 @@ fn main() {
 
     match &args.stopwatch {
         Some(Commands::Status) => {
-            stopwatch_status(Paths::Stopwatch);
+            stopwatch_status(Paths::Stopwatch.to_string());
         }
-        // Some(Commands::New) => new_stopwatch(stopwatch_path, now),
-        None => {
-            println!("Default subcommand");
-        }
-        _ => {
-            print("subcommand something else".yellow());
-        }
+        Some(Commands::New) => new_stopwatch(now),
+        Some(Commands::Stop) => stop_process(
+            Paths::StopwatchStop.to_string(),
+            Paths::Stopwatch.to_string(),
+        ),
+
+        None => println!("no subcommands"),
+        // _ => print("subcommand something else".yellow()),
     }
 }
 
-fn stop_process(path: &str) {
-    let file = match std::fs::File::create(path) {
-        Ok(msg) => {
-            let current_time = read_time(path);
-            notify(&format!("ended at {} msg={:?}", &current_time, msg));
+fn stop_process(stop_path: std::string::String, process_path: std::string::String) {
+    match std::fs::File::create(stop_path.to_string()) {
+        Ok(_msg) => {
+            let current_time = read_time(process_path.to_string());
+            notify(&format!("ended at {}", &current_time));
         }
         Err(error) => {
             eprintln!("problem in stop_process {}", error);
@@ -89,27 +79,28 @@ fn stop_process(path: &str) {
     };
 }
 
-fn new_stopwatch(path: &str, now: std::time::SystemTime) {
-    let stop_path = "/tmp/wooclock-stopwatch-stop.txt";
-    // deletes the stop file if exists
-    if std::path::Path::new(stop_path).exists() {
-        std::fs::remove_file(stop_path).unwrap()
+fn remove_stop_file(path: std::string::String) {
+    if std::path::Path::new(&path).exists() {
+        std::fs::remove_file(&path).unwrap();
     }
+}
 
+fn new_stopwatch(now: std::time::SystemTime) {
     notify("started a new stopwatch");
+    remove_stop_file(Paths::StopwatchStop.to_string());
 
     loop {
-        if std::path::Path::new(stop_path).exists() {
+        if std::path::Path::new(&Paths::StopwatchStop.to_string()).exists() {
             print("stop file exists, exiting".yellow());
             break;
         }
         sleep(Duration::new(1, 0));
         let time = get_time(now);
-        write_time(path, time)
+        write_time(Paths::Stopwatch.to_string(), time)
     }
 }
 
-fn write_time(path: &str, time: alloc::string::String) {
+fn write_time(path: std::string::String, time: alloc::string::String) {
     let file = fs::write(path, time);
     match file {
         Ok(msg) => msg,
@@ -120,16 +111,17 @@ fn write_time(path: &str, time: alloc::string::String) {
     }
 }
 
-fn stopwatch_status(path: Paths) {
+fn stopwatch_status(path: std::string::String) {
     let current_time = read_time(path);
-    if std::path::Path::new("/tmp/wooclock-stopwatch.txt").exists() {
+    if std::path::Path::new(&Paths::StopwatchStop.to_string()).exists() {
         notify(&format!("ended at {}", &current_time));
         std::process::exit(2);
     }
     notify(&format!("ongoing {}", &current_time));
+    std::process::exit(0);
 }
 
-fn read_time(path: &str) -> String {
+fn read_time(path: std::string::String) -> String {
     let file = fs::read_to_string(path);
     match file {
         Ok(msg) => return msg.to_string(),
@@ -181,22 +173,22 @@ fn _print_type_of<T>(_: &T) {
 }
 
 fn notify(body: &str) {
-    let body_final = format!("{}", &body.to_string());
+    let body_formatted = format!("{}", &body.to_string());
     Notification::new()
         .summary("wooclock")
-        .body(&body_final)
+        .appname("wooclock")
+        .body(&body_formatted)
         .icon("org.gnome.clocks")
         .action("default", "default")
-        .action("clicked", "click here")
-        .action("clicked", "second")
-        // .hint(Hint::Resident(true))
+        .action("stop", "stop")
+        .action("second", "second")
+        .action("third", "third")
         .show()
-        .unwrap();
-    // .wait_for_action(|action| match action {
-    //     "default" => println!("you clicked \"default\""),
-    //     "clicked" => println!("that was correct"),
-    //     // here "__closed" is a hard coded keyword
-    //     "__closed" => println!("the notification was closed"),
-    //     _ => (),
-    // });
+        .unwrap()
+        .wait_for_action(|action| match action {
+            "default" => println!("clicked on notification"),
+            "stop" => println!("stopeed the current"),
+            "__closed" => println!("the notification was closed"),
+            _ => print("other".blue()),
+        });
 }
