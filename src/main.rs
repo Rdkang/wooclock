@@ -61,10 +61,10 @@ fn main() {
             stopwatch_status(Paths::Stopwatch.to_string());
         }
         Some(Commands::New) => new_stopwatch(now),
-        Some(Commands::Stop) => stop_process(
-            Paths::StopwatchStop.to_string(),
-            Paths::Stopwatch.to_string(),
-        ),
+        Some(Commands::Stop) => {
+            stop_process(Paths::StopwatchStop.to_string(), Paths::Stopwatch.to_string());
+            std::process::exit(0);
+        }
 
         None => println!("no subcommands"),
         // _ => print("subcommand something else".yellow()),
@@ -75,7 +75,7 @@ fn stop_process(stop_path: std::string::String, process_path: std::string::Strin
     match std::fs::File::create(stop_path) {
         Ok(_msg) => {
             let current_time = read_time(process_path);
-            notify(&format!("ended at {}", &current_time));
+            notify(&format!("stopwatch ran for {}", &current_time));
         }
         Err(error) => {
             eprintln!("problem in stop_process {}", error);
@@ -90,17 +90,18 @@ fn remove_stop_file(path: std::string::String) {
 }
 
 fn new_stopwatch(now: std::time::SystemTime) {
-    notify("started a new stopwatch");
+    notify("stopwatch started");
     remove_stop_file(Paths::StopwatchStop.to_string());
 
     loop {
+        // if stop file is found, will stop the loop.
         if std::path::Path::new(&Paths::StopwatchStop.to_string()).exists() {
             print("stop file exists, exiting".yellow());
             break;
         }
+        // waits 1 second, gets the time and writes to the file
         sleep(Duration::new(1, 0));
-        let time = get_time(now);
-        write_time(Paths::Stopwatch.to_string(), time)
+        write_time(Paths::Stopwatch.to_string(), get_time(now))
     }
 }
 
@@ -130,7 +131,7 @@ fn read_time(path: std::string::String) -> String {
     match file {
         Ok(msg) => msg,
         Err(e) => {
-            notify(&format!("problem reading file {}", e));
+            notify(&format!("time file doesn't exist {}", e));
             std::process::exit(4);
         }
     }
@@ -141,7 +142,7 @@ fn get_time(now: std::time::SystemTime) -> String {
         Ok(elapsed) => {
             let time = elapsed.as_secs();
             let output = time_formatted(time);
-            print(output.italic().cyan().bold());
+            print(output.italic().cyan());
             output
         }
         Err(e) => {
