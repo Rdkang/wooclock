@@ -8,6 +8,10 @@ use std::thread::sleep;
 use std::time::{Duration, SystemTime};
 use std::{fmt, fs};
 extern crate alloc;
+/*
+TODO
+-
+*/
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -68,9 +72,9 @@ fn main() {
 }
 
 fn stop_process(stop_path: std::string::String, process_path: std::string::String) {
-    match std::fs::File::create(stop_path.to_string()) {
+    match std::fs::File::create(stop_path) {
         Ok(_msg) => {
-            let current_time = read_time(process_path.to_string());
+            let current_time = read_time(process_path);
             notify(&format!("ended at {}", &current_time));
         }
         Err(error) => {
@@ -124,7 +128,7 @@ fn stopwatch_status(path: std::string::String) {
 fn read_time(path: std::string::String) -> String {
     let file = fs::read_to_string(path);
     match file {
-        Ok(msg) => return msg.to_string(),
+        Ok(msg) => msg,
         Err(e) => {
             notify(&format!("problem reading file {}", e));
             std::process::exit(4);
@@ -138,11 +142,11 @@ fn get_time(now: std::time::SystemTime) -> String {
             let time = elapsed.as_secs();
             let output = time_formatted(time);
             print(output.italic().cyan().bold());
-            return output;
+            output
         }
         Err(e) => {
             println!("Error: {e:?}");
-            return "Error in get_time".to_string();
+            "Error in get_time".to_string()
         }
     }
 }
@@ -173,11 +177,10 @@ fn _print_type_of<T>(_: &T) {
 }
 
 fn notify(body: &str) {
-    let body_formatted = format!("{}", &body.to_string());
     Notification::new()
         .summary("wooclock")
         .appname("wooclock")
-        .body(&body_formatted)
+        .body(body)
         .icon("org.gnome.clocks")
         .action("default", "default")
         .action("stop", "stop")
