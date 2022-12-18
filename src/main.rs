@@ -4,6 +4,7 @@
 use clap::{Parser, Subcommand};
 use colored::*;
 use notify_rust::Notification;
+use rofi::Rofi;
 use std::thread::sleep;
 use std::time::{Duration, SystemTime};
 use std::{fmt, fs};
@@ -69,8 +70,10 @@ fn main() {
             std::process::exit(0);
         }
 
-        None => println!("no subcommands"),
-        // _ => print("subcommand something else".yellow()),
+        None => {
+            println!("no subcommands");
+            rofi_options(now)
+        } // _ => print("subcommand something else".yellow()),
     }
 }
 
@@ -208,4 +211,27 @@ fn notify(body: &str) {
         .icon("org.gnome.clocks")
         .show()
         .unwrap();
+}
+
+fn rofi_options(now: std::time::SystemTime) {
+    // let entries: Vec<String> = vec!["new".to_string(), "show".to_string(), "stop".to_string()];
+    let entries: Vec<&str> = vec!["new", "show", "stop"];
+    match Rofi::new(&entries).prompt("stopwatchrs").run() {
+        Ok(choice) => {
+            println!("Choice: {}", choice);
+            if choice == "new" {
+                new_stopwatch(now)
+            } else if choice == "show" {
+                stopwatch_status(Paths::Stopwatch.to_string())
+            } else if choice == "stop" {
+                stop_process(Paths::StopwatchStop.to_string(), Paths::Stopwatch.to_string());
+            } else {
+                std::process::exit(69);
+            }
+        }
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            std::process::exit(69)
+        }
+    };
 }
