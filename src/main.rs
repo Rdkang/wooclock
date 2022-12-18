@@ -176,10 +176,10 @@ fn _print_type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
 }
 
-fn notify(body: &str) {
+fn notify_action(body: &str) {
     Notification::new()
-        .summary("wooclock")
-        .appname("wooclock")
+        .summary("Wooclock")
+        .appname("Wooclock")
         .body(body)
         .icon("org.gnome.clocks")
         .action("default", "default")
@@ -194,4 +194,14 @@ fn notify(body: &str) {
             "__closed" => println!("the notification was closed"),
             _ => print("other".blue()),
         });
+}
+
+fn notify(body: &str) {
+    Notification::new()
+        .summary("Wooclock")
+        .appname("Wooclock")
+        .body(body)
+        .icon("org.gnome.clocks")
+        .show()
+        .unwrap();
 }
