@@ -8,9 +8,12 @@ use std::thread::sleep;
 use std::time::{Duration, SystemTime};
 use std::{fmt, fs};
 extern crate alloc;
+
 /*
-TODO
--
+TODO - handle sigterm. and create a stop file
+TODO - implement timer and timerstop
+TODO - able to specify on cli if timer or stopwatch subcommands
+TODO - make sure only one instance
 */
 
 #[derive(Parser)]
