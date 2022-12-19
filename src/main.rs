@@ -5,8 +5,9 @@ use clap::{Parser, Subcommand};
 use colored::*;
 use notify_rust::Notification;
 use rofi::Rofi;
+use std::io::ErrorKind;
 use std::thread::sleep;
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 use std::{fmt, fs};
 extern crate alloc;
 
@@ -36,6 +37,8 @@ enum Commands {
     Status,
     /// stops the current
     Stop,
+    /// can choose all options in rofi
+    Rofi,
 }
 
 enum Paths {
@@ -58,22 +61,21 @@ impl fmt::Display for Paths {
 
 fn main() {
     let args = Args::parse();
-    let now = SystemTime::now();
+    // let now = SystemTime::now();
 
     match &args.stopwatch {
         Some(Commands::Status) => {
             stopwatch_status(Paths::Stopwatch.to_string());
         }
-        Some(Commands::New) => new_stopwatch(now),
+        Some(Commands::New) => new_stopwatch(),
         Some(Commands::Stop) => {
             stop_process(Paths::StopwatchStop.to_string(), Paths::Stopwatch.to_string());
             std::process::exit(0);
         }
-
+        Some(Commands::Rofi) => rofi_options(),
         None => {
             println!("no subcommands");
-            rofi_options(now)
-        } // _ => print("subcommand something else".yellow()),
+        }
     }
 }
 
@@ -95,7 +97,7 @@ fn remove_stop_file(path: std::string::String) {
     }
 }
 
-fn new_stopwatch(now: std::time::SystemTime) {
+fn new_stopwatch() {
     notify("stopwatch started");
     remove_stop_file(Paths::StopwatchStop.to_string());
 
@@ -107,7 +109,7 @@ fn new_stopwatch(now: std::time::SystemTime) {
         }
         // waits 1 second, gets the time and writes to the file
         sleep(Duration::new(1, 0));
-        write_time(Paths::Stopwatch.to_string(), get_time(now))
+        write_time(Paths::Stopwatch.to_string(), read_time(Paths::Stopwatch.to_string()))
     }
 }
 
@@ -133,30 +135,26 @@ fn stopwatch_status(path: std::string::String) {
 }
 
 fn read_time(path: std::string::String) -> String {
-    let file = fs::read_to_string(path);
-    match file {
-        Ok(msg) => msg,
-        Err(e) => {
-            notify(&format!("time file doesn't exist {}", e));
-            std::process::exit(4);
+    fs::read_to_string(path).unwrap_or_else(|error| {
+        if error.kind() == ErrorKind::NotFound {
+            notify(&format!("file contaning file not found: {}", error));
+            std::process::exit(3)
+        } else {
+            notify(&format!("problem reading file {}", error));
+            std::process::exit(3)
         }
-    }
+    })
 }
 
-fn get_time(now: std::time::SystemTime) -> String {
+/* fn get_time(now: std::time::SystemTime) -> Result<String, io::Error> {
     match now.elapsed() {
         Ok(elapsed) => {
             let time = elapsed.as_secs();
             let output = time_formatted(time);
             print(output.italic().cyan());
-            output
         }
-        Err(e) => {
-            println!("Error: {e:?}");
-            "Error in get_time".to_string()
-        }
-    }
 }
+*/
 
 fn time_formatted(secs: u64) -> String {
     let sec = (secs % 60) as u8;
@@ -213,14 +211,14 @@ fn notify(body: &str) {
         .unwrap();
 }
 
-fn rofi_options(now: std::time::SystemTime) {
+fn rofi_options() {
     // let entries: Vec<String> = vec!["new".to_string(), "show".to_string(), "stop".to_string()];
     let entries: Vec<&str> = vec!["new", "show", "stop"];
     match Rofi::new(&entries).prompt("stopwatchrs").run() {
         Ok(choice) => {
             println!("Choice: {}", choice);
             if choice == "new" {
-                new_stopwatch(now)
+                new_stopwatch()
             } else if choice == "show" {
                 stopwatch_status(Paths::Stopwatch.to_string())
             } else if choice == "stop" {
