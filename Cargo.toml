@@ -10,4 +10,5 @@ colored = "2"
 clap = { version = "4", features = ["derive"] }
 notify-rust = "4.6"
 rofi = "0.3.0"
+opener = "0.5.0"
 rand = "0.8.0"

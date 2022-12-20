@@ -4,6 +4,7 @@
 use clap::{Parser, Subcommand};
 use colored::*;
 use notify_rust::Notification;
+use rand::seq::IteratorRandom;
 use rofi::Rofi;
 use std::io::ErrorKind;
 use std::thread::sleep;
@@ -16,6 +17,7 @@ TODO - handle sigterm. and create a stop file
 TODO - implement timer and timerstop
 TODO - able to specify on cli if timer or stopwatch subcommands
 TODO - make sure only one instance
+TODO - config file for the wallpapers path in open_image()
 */
 
 #[derive(Parser)]
@@ -238,6 +240,7 @@ fn rofi_options(now: std::time::SystemTime) {
         }
     };
 }
+
 // timer
 fn open_image() {
     let wallpapers_path = "/home/rdkang/Pictures/Wallpapers/samDoesArt";
@@ -246,6 +249,7 @@ fn open_image() {
     let file = files.choose(&mut rng).unwrap().unwrap();
     print(format!("picture: {}", file.path().display()).cyan())
 }
+
 fn rofi_get_length() -> i32 {
     let entries: Vec<String> = vec!["enter timer length".to_string()];
     let user_choice = match Rofi::new(&entries).prompt("Wooclock Timer").run() {
@@ -255,6 +259,27 @@ fn rofi_get_length() -> i32 {
     };
     let timer_length = user_choice.parse::<i32>().unwrap();
     timer_length * 60
+}
+
+fn new_timer() {
+    remove_stop_file(Paths::TimerStop.to_string());
+    let mut timer_length: i32 = rofi_get_length();
+
+    while timer_length != 0 {
+        if std::path::Path::new(&Paths::TimerStop.to_string()).exists() {
+            print("Stop file present, exiting loop".yellow());
+        };
+
+        print(timer_length.to_string().italic().cyan());
+        write_content(Paths::Timer.to_string(), &timer_length.to_string());
+        sleep(Duration::new(1, 0));
+        timer_length -= 1;
+    }
+
+    notify(&format!("{}m timer finished", timer_length / 60));
+    open_image();
+}
+
 /// tests
 #[test]
 fn test_from_sec() {
