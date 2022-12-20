@@ -238,3 +238,8 @@ fn rofi_options(now: std::time::SystemTime) {
         }
     };
 }
+/// tests
+#[test]
+fn test_from_sec() {
+    assert_eq!(time_formatted(90), "1:30");
+}
