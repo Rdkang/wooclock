@@ -246,6 +246,15 @@ fn open_image() {
     let file = files.choose(&mut rng).unwrap().unwrap();
     print(format!("picture: {}", file.path().display()).cyan())
 }
+fn rofi_get_length() -> i32 {
+    let entries: Vec<String> = vec!["enter timer length".to_string()];
+    let user_choice = match Rofi::new(&entries).prompt("Wooclock Timer").run() {
+        Ok(choice) => choice,
+        // TODO improve error handling
+        Err(_error) => 10.to_string(),
+    };
+    let timer_length = user_choice.parse::<i32>().unwrap();
+    timer_length * 60
 /// tests
 #[test]
 fn test_from_sec() {
