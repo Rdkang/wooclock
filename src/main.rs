@@ -238,6 +238,14 @@ fn rofi_options(now: std::time::SystemTime) {
         }
     };
 }
+// timer
+fn open_image() {
+    let wallpapers_path = "/home/rdkang/Pictures/Wallpapers/samDoesArt";
+    let mut rng = rand::thread_rng();
+    let files = fs::read_dir(wallpapers_path).unwrap();
+    let file = files.choose(&mut rng).unwrap().unwrap();
+    print(format!("picture: {}", file.path().display()).cyan())
+}
 /// tests
 #[test]
 fn test_from_sec() {
