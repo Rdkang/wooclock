@@ -109,12 +109,12 @@ fn new_stopwatch(now: std::time::SystemTime) {
         }
         // waits 1 second, gets the time and writes to the file
         sleep(Duration::new(1, 0));
-        write_time(Paths::Stopwatch.to_string(), get_time(now))
+        write_content(Paths::Stopwatch.to_string(), get_time(now).as_str())
     }
 }
 
-fn write_time(path: std::string::String, time: alloc::string::String) {
-    let file = fs::write(path, time);
+fn write_content(path: std::string::String, content: &str) {
+    let file = fs::write(path, content);
     match file {
         Ok(msg) => msg,
         Err(_e) => {
