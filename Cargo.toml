@@ -1,6 +1,6 @@
 [package]
 name = "wooclock"
-version = "0.8.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["rdkang"]
 homepage = "wooclock.rdkang.xyz"

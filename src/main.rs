@@ -4,6 +4,7 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use colored::*;
 use notify_rust::Notification;
+use opener::open;
 use rand::seq::IteratorRandom;
 use rofi::Rofi;
 use std::io::ErrorKind;
@@ -95,11 +96,23 @@ fn main() {
     }
 }
 
-fn stop_process(stop_path: std::string::String, process_path: std::string::String) {
+fn stop_stopwatch(stop_path: std::string::String, process_path: std::string::String) {
     match std::fs::File::create(stop_path) {
         Ok(_msg) => {
             let current_time = read_time(process_path);
-            notify(&format!("stopwatch ran for {}", &current_time));
+            notify(&format!("stopwatch ran for {}", time_formatted(current_time)));
+        }
+        Err(error) => {
+            eprintln!("problem in stop_process {}", error);
+        }
+    };
+}
+
+fn stop_timer() {
+    match std::fs::File::create(Paths::TimerStop.to_string()) {
+        Ok(_msg) => {
+            let current_time = read_time(Paths::Timer.to_string());
+            notify(&format!("timer ran for {}", time_formatted(current_time)));
         }
         Err(error) => {
             eprintln!("problem in stop_process {}", error);
@@ -125,7 +138,7 @@ fn new_stopwatch(now: std::time::SystemTime) {
         }
         // waits 1 second, gets the time and writes to the file
         sleep(Duration::new(1, 0));
-        write_content(Paths::Stopwatch.to_string(), get_time(now).as_str())
+        write_content(Paths::Stopwatch.to_string(), &get_time(now).to_string())
     }
 }
 
@@ -146,7 +159,7 @@ fn stopwatch_status(path: std::string::String) {
         notify(&format!("ended at {}", &current_time));
         std::process::exit(2);
     }
-    notify(&format!("ongoing {}", &current_time));
+    notify(&format!("ongoing {}", &time_formatted(current_time)));
     std::process::exit(0);
 }
 
@@ -245,7 +258,7 @@ fn rofi_options(now: std::time::SystemTime) {
             } else if choice == "show" {
                 stopwatch_status(Paths::Stopwatch.to_string())
             } else if choice == "stop" {
-                stop_process(Paths::StopwatchStop.to_string(), Paths::Stopwatch.to_string());
+                stop_stopwatch(Paths::StopwatchStop.to_string(), Paths::Stopwatch.to_string());
             } else {
                 std::process::exit(69);
             }
@@ -263,7 +276,8 @@ fn open_image() {
     let mut rng = rand::thread_rng();
     let files = fs::read_dir(wallpapers_path).unwrap();
     let file = files.choose(&mut rng).unwrap().unwrap();
-    print(format!("picture: {}", file.path().display()).cyan())
+    print(format!("picture: {}", file.path().display()).cyan());
+    open(file.path()).unwrap();
 }
 
 fn rofi_get_length() -> i32 {
@@ -284,6 +298,7 @@ fn new_timer() {
     while timer_length != 0 {
         if std::path::Path::new(&Paths::TimerStop.to_string()).exists() {
             print("Stop file present, exiting loop".yellow());
+            break;
         };
 
         print(timer_length.to_string().italic().cyan());
@@ -292,8 +307,16 @@ fn new_timer() {
         timer_length -= 1;
     }
 
-    notify(&format!("{}m timer finished", timer_length / 60));
+    notify(&format!(
+        "{}m timer finished",
+        time_formatted(read_time(Paths::Timer.to_string()))
+    ));
     open_image();
+}
+
+fn timer_status() {
+    let timer_length = read_time(Paths::Timer.to_string());
+    print(time_formatted(timer_length).green());
 }
 
 /// tests
