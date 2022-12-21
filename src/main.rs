@@ -150,24 +150,26 @@ fn stopwatch_status(path: std::string::String) {
     std::process::exit(0);
 }
 
-fn read_time(path: std::string::String) -> String {
-    fs::read_to_string(path).unwrap_or_else(|error| {
-        if error.kind() == ErrorKind::NotFound {
-            notify(&format!("file contaning file not found: {}", error));
-            std::process::exit(3)
-        } else {
-            notify(&format!("problem reading file {}", error));
-            std::process::exit(3)
-        }
-    })
+fn read_time(path: std::string::String) -> u64 {
+    fs::read_to_string(path)
+        .unwrap_or_else(|error| {
+            if error.kind() == ErrorKind::NotFound {
+                notify(&format!("file contaning file not found: {}", error));
+                std::process::exit(3)
+            } else {
+                notify(&format!("problem reading file {}", error));
+                std::process::exit(3)
+            }
+        })
+        .parse::<u64>()
+        .unwrap()
 }
 
-fn get_time(now: std::time::SystemTime) -> String {
+fn get_time(now: std::time::SystemTime) -> u64 {
     match now.elapsed() {
         Ok(elapsed) => {
-            let output = time_formatted(elapsed.as_secs());
-            print(output.italic().cyan());
-            output
+            print(time_formatted(elapsed.as_secs()).italic().cyan());
+            elapsed.as_secs()
         }
         Err(error) => {
             notify(&format!("problem getting the time: {}", error));
