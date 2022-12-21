@@ -12,16 +12,14 @@ use std::time::{Duration, SystemTime};
 use std::{fmt, fs};
 extern crate alloc;
 
-/*
-TODO - handle sigterm. and create a stop file
-TODO - implement timer and timerstop
-TODO - able to specify on cli if timer or stopwatch subcommands
-TODO - make sure only one instance
-TODO - config file for the wallpapers path in open_image()
-TODO - shell completion
-TODO - short flag for the options
-TODO - split code to each clock type and general functions
-*/
+// TODO: - handle sigterm. and create a stop file
+// TODO: - able to specify on cli if timer or stopwatch subcommands
+// TODO: - make sure only one instance
+// TODO: - config file for the wallpapers path in open_image()
+// TODO: - shell completion
+// TODO: - short flag for the options
+// TODO: - split code to each clock type and general functions
+// TODO: - function to clean convert time from <String> to <u64>
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
