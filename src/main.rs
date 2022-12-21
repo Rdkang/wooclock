@@ -1,7 +1,7 @@
 #![allow(dead_code)]
-// #![allow(unused_variables)]
+#![allow(unused_variables)]
 
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use colored::*;
 use notify_rust::Notification;
 use rofi::Rofi;
@@ -21,13 +21,24 @@ TODO - make sure only one instance
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 #[command(propagate_version = true)]
-struct Args {
+struct Cli {
     #[command(subcommand)]
-    stopwatch: Option<Commands>,
-    timer: Option<bool>,
+    command: ClockType,
 }
 
 #[derive(Subcommand)]
+enum ClockType {
+    Stopwatch {
+        // #[arg(value_name = "Command")]
+        function: Commands,
+    },
+    Timer {
+        // #[arg(default_value = Commands::Rofi)]
+        function: Commands,
+    },
+}
+
+#[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq)]
 enum Commands {
     // Status { status: Option<bool> },
     /// starts a new timer
