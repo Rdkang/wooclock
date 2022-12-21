@@ -80,15 +80,18 @@ fn main() {
     let now = SystemTime::now();
 
     match args.command {
-        ClockType::Stopwatch { option: function } => match function {
+        ClockType::Stopwatch { option } => match option {
             Commands::New => new_stopwatch(now),
-            Commands::Stop => stop_process(Paths::StopwatchStop.to_string(), Paths::Stopwatch.to_string()),
+            Commands::Stop => stop_stopwatch(Paths::StopwatchStop.to_string(), Paths::Stopwatch.to_string()),
             Commands::Status => stopwatch_status(Paths::Stopwatch.to_string()),
             Commands::Rofi => rofi_options(now),
         },
-        ClockType::Timer { option: function } => {
-            print("test".green());
-        }
+        ClockType::Timer { option } => match option {
+            Commands::New => new_timer(),
+            Commands::Stop => stop_timer(),
+            Commands::Status => timer_status(),
+            Commands::Rofi => rofi_options(now),
+        },
     }
 }
 
