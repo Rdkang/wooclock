@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-#![allow(unused_variables)]
+// #![allow(unused_variables)]
 
 use clap::{Parser, Subcommand, ValueEnum};
 use colored::*;
@@ -18,6 +18,9 @@ TODO - implement timer and timerstop
 TODO - able to specify on cli if timer or stopwatch subcommands
 TODO - make sure only one instance
 TODO - config file for the wallpapers path in open_image()
+TODO - shell completion
+TODO - short flag for the options
+TODO - split code to each clock type and general functions
 */
 
 #[derive(Parser)]
@@ -89,21 +92,6 @@ fn main() {
             print("test".green());
         }
     }
-
-    /* match &args.stopwatch {
-        Some(Commands::Status) => {
-            stopwatch_status(Paths::Stopwatch.to_string());
-        }
-        Some(Commands::New) => new_stopwatch(now),
-        Some(Commands::Stop) => {
-            stop_process(Paths::StopwatchStop.to_string(), Paths::Stopwatch.to_string());
-            std::process::exit(0);
-        }
-        Some(Commands::Rofi) => rofi_options(now),
-        None => {
-            println!("no subcommands");
-        }
-    } */
 }
 
 fn stop_process(stop_path: std::string::String, process_path: std::string::String) {
