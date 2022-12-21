@@ -4,6 +4,7 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use colored::*;
 use notify_rust::Notification;
+use rand::seq::IteratorRandom;
 use rofi::Rofi;
 use std::io::ErrorKind;
 use std::thread::sleep;
@@ -16,6 +17,7 @@ TODO - handle sigterm. and create a stop file
 TODO - implement timer and timerstop
 TODO - able to specify on cli if timer or stopwatch subcommands
 TODO - make sure only one instance
+TODO - config file for the wallpapers path in open_image()
 */
 
 #[derive(Parser)]
@@ -134,12 +136,12 @@ fn new_stopwatch(now: std::time::SystemTime) {
         }
         // waits 1 second, gets the time and writes to the file
         sleep(Duration::new(1, 0));
-        write_time(Paths::Stopwatch.to_string(), get_time(now))
+        write_content(Paths::Stopwatch.to_string(), get_time(now).as_str())
     }
 }
 
-fn write_time(path: std::string::String, time: alloc::string::String) {
-    let file = fs::write(path, time);
+fn write_content(path: std::string::String, content: &str) {
+    let file = fs::write(path, content);
     match file {
         Ok(msg) => msg,
         Err(_e) => {
@@ -262,4 +264,49 @@ fn rofi_options(now: std::time::SystemTime) {
             std::process::exit(69)
         }
     };
+}
+
+// timer
+fn open_image() {
+    let wallpapers_path = "/home/rdkang/Pictures/Wallpapers/samDoesArt";
+    let mut rng = rand::thread_rng();
+    let files = fs::read_dir(wallpapers_path).unwrap();
+    let file = files.choose(&mut rng).unwrap().unwrap();
+    print(format!("picture: {}", file.path().display()).cyan())
+}
+
+fn rofi_get_length() -> i32 {
+    let entries: Vec<String> = vec!["enter timer length".to_string()];
+    let user_choice = match Rofi::new(&entries).prompt("Wooclock Timer").run() {
+        Ok(choice) => choice,
+        // TODO improve error handling
+        Err(_error) => 10.to_string(),
+    };
+    let timer_length = user_choice.parse::<i32>().unwrap();
+    timer_length * 60
+}
+
+fn new_timer() {
+    remove_stop_file(Paths::TimerStop.to_string());
+    let mut timer_length: i32 = rofi_get_length();
+
+    while timer_length != 0 {
+        if std::path::Path::new(&Paths::TimerStop.to_string()).exists() {
+            print("Stop file present, exiting loop".yellow());
+        };
+
+        print(timer_length.to_string().italic().cyan());
+        write_content(Paths::Timer.to_string(), &timer_length.to_string());
+        sleep(Duration::new(1, 0));
+        timer_length -= 1;
+    }
+
+    notify(&format!("{}m timer finished", timer_length / 60));
+    open_image();
+}
+
+/// tests
+#[test]
+fn test_from_sec() {
+    assert_eq!(time_formatted(90), "1:30");
 }
