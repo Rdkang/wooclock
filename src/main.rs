@@ -28,13 +28,15 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum ClockType {
+    #[command(arg_required_else_help = true)]
     Stopwatch {
         // #[arg(value_name = "Command")]
-        function: Commands,
+        option: Commands,
     },
+    #[command(arg_required_else_help = true)]
     Timer {
         // #[arg(default_value = Commands::Rofi)]
-        function: Commands,
+        option: Commands,
     },
 }
 
@@ -75,14 +77,14 @@ fn main() {
     let now = SystemTime::now();
 
     match args.command {
-        ClockType::Stopwatch { function } => match function {
-            Commands::New => {
-                print("Chose new".blue());
-            }
-            _ => print("chose other".blue()),
+        ClockType::Stopwatch { option: function } => match function {
+            Commands::New => new_stopwatch(now),
+            Commands::Stop => stop_process(Paths::StopwatchStop.to_string(), Paths::Stopwatch.to_string()),
+            Commands::Status => stopwatch_status(Paths::Stopwatch.to_string()),
+            Commands::Rofi => rofi_options(now),
         },
-        ClockType::Timer { function } => {
-            print("that".green());
+        ClockType::Timer { option: function } => {
+            print("test".green());
         }
     }
 
