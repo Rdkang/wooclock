@@ -71,10 +71,22 @@ impl fmt::Display for Paths {
 }
 
 fn main() {
-    let args = Args::parse();
+    let args = Cli::parse();
     let now = SystemTime::now();
 
-    match &args.stopwatch {
+    match args.command {
+        ClockType::Stopwatch { function } => match function {
+            Commands::New => {
+                print("Chose new".blue());
+            }
+            _ => print("chose other".blue()),
+        },
+        ClockType::Timer { function } => {
+            print("that".green());
+        }
+    }
+
+    /* match &args.stopwatch {
         Some(Commands::Status) => {
             stopwatch_status(Paths::Stopwatch.to_string());
         }
@@ -87,7 +99,7 @@ fn main() {
         None => {
             println!("no subcommands");
         }
-    }
+    } */
 }
 
 fn stop_process(stop_path: std::string::String, process_path: std::string::String) {
