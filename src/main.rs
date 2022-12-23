@@ -13,14 +13,14 @@ use std::time::{Duration, SystemTime};
 use std::{fmt, fs};
 extern crate alloc;
 
-// TODO: - handle sigterm. and create a stop file
-// TODO: - able to specify on cli if timer or stopwatch subcommands
-// TODO: - make sure only one instance
-// TODO: - config file for the wallpapers path in open_image()
-// TODO: - shell completion
-// TODO: - short flag for the options
-// TODO: - split code to each clock type and general functions
-// TODO: - function to clean convert time from <String> to <u64>
+// TODO: dry principle for when using intertwine the cli arguments, and should work with timer as well. with the name of ClockType as the prompt
+// TODO: handle sigterm. And create a stop file
+// TODO: able to specify on cli if timer or stopwatch subcommands
+// TODO: make sure only one instance
+// TODO: config file for the wallpapers path in open_image()
+// TODO: shell completion
+// TODO: short flag for the options
+// TODO: split code to separate files for each clock type and general functions
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -68,6 +68,7 @@ enum Paths {
 impl fmt::Display for Paths {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            // when call .to_string() on it will make it this path string
             Paths::Stopwatch => write!(f, "/tmp/wooclock-stopwatch.txt"),
             Paths::StopwatchStop => write!(f, "/tmp/wooclock-stopwatch-stop.txt"),
             Paths::Timer => write!(f, "/tmp/wooclock-timer.txt"),
@@ -77,21 +78,24 @@ impl fmt::Display for Paths {
 }
 
 fn main() {
-    let args = Cli::parse();
-    let now = SystemTime::now();
+    let arguments = Cli::parse();
+    let time_now = SystemTime::now();
 
-    match args.command {
+    match arguments.command {
         ClockType::Stopwatch { option } => match option {
-            Commands::New => new_stopwatch(now),
-            Commands::Stop => stop_stopwatch(Paths::StopwatchStop.to_string(), Paths::Stopwatch.to_string()),
+            Commands::New => new_stopwatch(time_now),
+            Commands::Stop => stop_stopwatch(
+                Paths::StopwatchStop.to_string(),
+                Paths::Stopwatch.to_string(),
+            ),
             Commands::Status => stopwatch_status(Paths::Stopwatch.to_string()),
-            Commands::Rofi => rofi_options(now),
+            Commands::Rofi => rofi_options(time_now),
         },
         ClockType::Timer { option } => match option {
             Commands::New => new_timer(),
             Commands::Stop => stop_timer(),
             Commands::Status => timer_status(),
-            Commands::Rofi => rofi_options(now),
+            Commands::Rofi => rofi_options(time_now),
         },
     }
 }
@@ -100,7 +104,10 @@ fn stop_stopwatch(stop_path: std::string::String, process_path: std::string::Str
     match std::fs::File::create(stop_path) {
         Ok(_msg) => {
             let current_time = read_time(process_path);
-            notify(&format!("stopwatch ran for {}", time_formatted(current_time)));
+            notify(&format!(
+                "stopwatch ran for {}",
+                time_formatted(current_time)
+            ));
         }
         Err(error) => {
             eprintln!("problem in stop_process {}", error);
@@ -167,7 +174,7 @@ fn read_time(path: std::string::String) -> u64 {
     fs::read_to_string(path)
         .unwrap_or_else(|error| {
             if error.kind() == ErrorKind::NotFound {
-                notify(&format!("file contaning file not found: {}", error));
+                notify(&format!("file containing file not found: {}", error));
                 std::process::exit(3)
             } else {
                 notify(&format!("problem reading file {}", error));
@@ -186,7 +193,6 @@ fn get_time(now: std::time::SystemTime) -> u64 {
         }
         Err(error) => {
             notify(&format!("problem getting the time: {}", error));
-            // std::process::exit(8)
             panic!("problem getting time");
         }
     }
@@ -247,10 +253,10 @@ fn notify(body: &str) {
         .unwrap();
 }
 
+// FIX: able to use for timer
 fn rofi_options(now: std::time::SystemTime) {
-    // let entries: Vec<String> = vec!["new".to_string(), "show".to_string(), "stop".to_string()];
     let entries: Vec<&str> = vec!["new", "show", "stop"];
-    match Rofi::new(&entries).prompt("stopwatchrs").run() {
+    match Rofi::new(&entries).prompt("Wooclock").run() {
         Ok(choice) => {
             println!("Choice: {}", choice);
             if choice == "new" {
@@ -258,7 +264,10 @@ fn rofi_options(now: std::time::SystemTime) {
             } else if choice == "show" {
                 stopwatch_status(Paths::Stopwatch.to_string())
             } else if choice == "stop" {
-                stop_stopwatch(Paths::StopwatchStop.to_string(), Paths::Stopwatch.to_string());
+                stop_stopwatch(
+                    Paths::StopwatchStop.to_string(),
+                    Paths::Stopwatch.to_string(),
+                );
             } else {
                 std::process::exit(69);
             }
@@ -307,6 +316,7 @@ fn new_timer() {
         timer_length -= 1;
     }
 
+    // FIX:
     notify(&format!(
         "{}m timer finished",
         time_formatted(read_time(Paths::Timer.to_string()))
