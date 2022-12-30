@@ -15,7 +15,6 @@ extern crate alloc;
 
 // TODO: dry principle for when using intertwine the cli arguments, and should work with timer as well. with the name of ClockType as the prompt
 // TODO: handle sigterm. And create a stop file
-// TODO: able to specify on cli if timer or stopwatch subcommands
 // TODO: make sure only one instance
 // TODO: config file for the wallpapers path in open_image()
 // TODO: shell completion
@@ -320,7 +319,6 @@ fn new_timer() {
 }
 
 fn timer_status() {
-    // FIX: get total timer length
     let timer_length: u64 = read_time(Paths::Timer.to_string());
     print(time_formatted(timer_length).green());
     if std::path::Path::new(&Paths::TimerStop.to_string()).exists() {
@@ -328,10 +326,9 @@ fn timer_status() {
             "ended at {}",
             time_formatted(read_time(Paths::TimerLength.to_string()))
         ));
-        std::process::exit(2);
+    } else {
+        notify(&format!("ongoing {} left", &time_formatted(timer_length)));
     }
-
-    notify(&format!("ongoing {} left", &time_formatted(timer_length)));
 }
 
 /// tests
