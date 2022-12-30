@@ -63,6 +63,7 @@ enum Paths {
     Timer,
     StopwatchStop,
     TimerStop,
+    TimerLength,
 }
 
 impl fmt::Display for Paths {
@@ -73,6 +74,7 @@ impl fmt::Display for Paths {
             Paths::StopwatchStop => write!(f, "/tmp/wooclock-stopwatch-stop.txt"),
             Paths::Timer => write!(f, "/tmp/wooclock-timer.txt"),
             Paths::TimerStop => write!(f, "/tmp/wooclock-timer-stop.txt"),
+            Paths::TimerLength => write!(f, "/tmp/wooclock-timer-length.txt"),
         }
     }
 }
@@ -293,6 +295,8 @@ fn rofi_get_length() -> i32 {
 fn new_timer() {
     remove_stop_file(Paths::TimerStop.to_string());
     let mut timer_length: i32 = rofi_get_length();
+    // write timer length to file
+    write_content(Paths::TimerLength.to_string(), &timer_length.to_string());
 
     while timer_length != 0 {
         if std::path::Path::new(&Paths::TimerStop.to_string()).exists() {
@@ -306,17 +310,26 @@ fn new_timer() {
         timer_length -= 1;
     }
 
-    // FIX:
     notify(&format!(
-        "{}m timer finished",
-        time_formatted(read_time(Paths::Timer.to_string()))
+        "{} timer finished",
+        time_formatted(read_time(Paths::TimerLength.to_string()))
     ));
     open_image();
 }
 
 fn timer_status() {
-    let timer_length = read_time(Paths::Timer.to_string());
+    // FIX: get total timer length
+    let timer_length: u64 = read_time(Paths::Timer.to_string());
     print(time_formatted(timer_length).green());
+    if std::path::Path::new(&Paths::TimerStop.to_string()).exists() {
+        notify(&format!(
+            "ended at {}",
+            time_formatted(read_time(Paths::TimerLength.to_string()))
+        ));
+        std::process::exit(2);
+    }
+
+    notify(&format!("ongoing {} left", &time_formatted(timer_length)));
 }
 
 /// tests
