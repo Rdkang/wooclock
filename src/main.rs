@@ -155,9 +155,9 @@ fn write_content(path: std::string::String, content: &str) {
 }
 
 fn stopwatch_status(path: std::string::String) {
-    let current_time = read_time(path);
+    let current_time: u64 = read_time(path);
     if std::path::Path::new(&Paths::StopwatchStop.to_string()).exists() {
-        notify(&format!("ended at {}", &current_time));
+        notify(&format!("ended at {}", time_formatted(current_time)));
         std::process::exit(2);
     }
     notify(&format!("ongoing {}", &time_formatted(current_time)));
