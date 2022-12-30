@@ -84,10 +84,7 @@ fn main() {
     match arguments.command {
         ClockType::Stopwatch { option } => match option {
             Commands::New => new_stopwatch(time_now),
-            Commands::Stop => stop_stopwatch(
-                Paths::StopwatchStop.to_string(),
-                Paths::Stopwatch.to_string(),
-            ),
+            Commands::Stop => stop_stopwatch(Paths::StopwatchStop.to_string(), Paths::Stopwatch.to_string()),
             Commands::Status => stopwatch_status(Paths::Stopwatch.to_string()),
             Commands::Rofi => rofi_options(time_now),
         },
@@ -104,10 +101,7 @@ fn stop_stopwatch(stop_path: std::string::String, process_path: std::string::Str
     match std::fs::File::create(stop_path) {
         Ok(_msg) => {
             let current_time = read_time(process_path);
-            notify(&format!(
-                "stopwatch ran for {}",
-                time_formatted(current_time)
-            ));
+            notify(&format!("stopwatch ran for {}", time_formatted(current_time)));
         }
         Err(error) => {
             eprintln!("problem in stop_process {}", error);
@@ -264,10 +258,7 @@ fn rofi_options(now: std::time::SystemTime) {
             } else if choice == "show" {
                 stopwatch_status(Paths::Stopwatch.to_string())
             } else if choice == "stop" {
-                stop_stopwatch(
-                    Paths::StopwatchStop.to_string(),
-                    Paths::Stopwatch.to_string(),
-                );
+                stop_stopwatch(Paths::StopwatchStop.to_string(), Paths::Stopwatch.to_string());
             } else {
                 std::process::exit(69);
             }
