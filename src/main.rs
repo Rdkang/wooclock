@@ -252,7 +252,6 @@ fn rofi_options(now: std::time::SystemTime) {
     let entries: Vec<&str> = vec!["new", "show", "stop"];
     match Rofi::new(&entries).prompt("Wooclock").run() {
         Ok(choice) => {
-            println!("Choice: {}", choice);
             if choice == "new" {
                 new_stopwatch(now)
             } else if choice == "show" {
