@@ -114,8 +114,10 @@ fn stop_stopwatch(stop_path: std::string::String, process_path: std::string::Str
 fn stop_timer() {
     match std::fs::File::create(Paths::TimerStop.to_string()) {
         Ok(_msg) => {
-            let current_time = read_time(Paths::Timer.to_string());
-            notify(&format!("timer ran for {}", time_formatted(current_time)));
+            let current_time: u64 = read_time(Paths::Timer.to_string());
+            let timer_length: u64 = read_time(Paths::TimerLength.to_string());
+            let elapsed_time: u64 = timer_length - current_time;
+            notify(&format!("timer ran for {}", time_formatted(elapsed_time)));
         }
         Err(error) => {
             eprintln!("problem in stop_process {}", error);
