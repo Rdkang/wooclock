@@ -3,8 +3,6 @@
 
 > an opinionated clock written for my needs
 
-### 🏠 [Homepage](blog.rdkang.space)
-
 ## Install
 
 ```sh
@@ -27,8 +25,16 @@ cargo test
 
 👤 **rdkang**
 
-* Website: blog.rdkang.space
 * Github: [@rdkang](https://github.com/rdkang)
+
+## Roadmap
+- [ ] TODO: dry principle for when using intertwine the cli arguments, and should work with timer as well. with the name of ClockType as the prompt
+- [ ] TODO: handle sigterm. And create a stop file
+- [ ] TODO: make sure only one instance
+- [ ] TODO: config file for the wallpapers path in open_image()
+- [ ] TODO: shell completion
+- [ ] TODO: short flag for the options
+- [ ] TODO: split code to separate files for each clock type and general functions
 
 ## Show your support
 

@@ -13,14 +13,6 @@ use std::time::{Duration, SystemTime};
 use std::{fmt, fs};
 extern crate alloc;
 
-// TODO: dry principle for when using intertwine the cli arguments, and should work with timer as well. with the name of ClockType as the prompt
-// TODO: handle sigterm. And create a stop file
-// TODO: make sure only one instance
-// TODO: config file for the wallpapers path in open_image()
-// TODO: shell completion
-// TODO: short flag for the options
-// TODO: split code to separate files for each clock type and general functions
-
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 #[command(propagate_version = true)]
@@ -286,7 +278,7 @@ fn rofi_get_length() -> i32 {
     let entries: Vec<String> = vec!["enter timer length".to_string()];
     let user_choice = match Rofi::new(&entries).prompt("Wooclock Timer").run() {
         Ok(choice) => choice,
-        // TODO improve error handling
+        // TODO: improve error handling
         Err(_error) => 10.to_string(),
     };
     let timer_length = user_choice.parse::<i32>().unwrap();
