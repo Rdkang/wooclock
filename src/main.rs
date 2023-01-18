@@ -7,6 +7,7 @@ use notify_rust::Notification;
 use opener::open;
 use rand::seq::IteratorRandom;
 use rofi::Rofi;
+use std::fmt::Arguments;
 use std::io::ErrorKind;
 use std::thread::sleep;
 use std::time::{Duration, SystemTime};
@@ -244,12 +245,12 @@ fn notify(body: &str) {
 
 // FIX: able to use for timer
 fn rofi_options(now: std::time::SystemTime) {
-    let entries: Vec<&str> = vec!["new", "show", "stop"];
+    let entries: Vec<&str> = vec!["new", "status", "stop"];
     match Rofi::new(&entries).prompt("Wooclock").run() {
         Ok(choice) => {
             if choice == "new" {
                 new_stopwatch(now)
-            } else if choice == "show" {
+            } else if choice == "status" {
                 stopwatch_status()
             } else if choice == "stop" {
                 stop_stopwatch(Paths::StopwatchStop.to_string());
