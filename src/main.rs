@@ -278,8 +278,15 @@ fn rofi_get_length() -> i32 {
     let entries: Vec<String> = vec!["enter timer length".to_string()];
     let user_choice = match Rofi::new(&entries).prompt("Wooclock Timer").run() {
         Ok(choice) => choice,
-        // TODO: improve error handling
-        Err(_error) => 10.to_string(),
+        Err(rofi::Error::Blank) => std::process::exit(1),
+        Err(rofi::Error::Interrupted) => std::process::exit(1),
+        Err(error) => {
+            let message = format!("rofi had a problem getting your length: {}",error);
+            notify(&message);
+            print(message.red());
+            std::process::exit(30)
+
+        },
     };
     let timer_length = user_choice.parse::<i32>().unwrap();
     timer_length * 60
@@ -287,8 +294,10 @@ fn rofi_get_length() -> i32 {
 
 fn new_timer() {
     remove_stop_file(Paths::TimerStop.to_string());
+
+    // interactively asks user for timer length using rofi
     let mut timer_length: i32 = rofi_get_length();
-    // write timer length to file
+
     write_content(Paths::TimerLength.to_string(), &timer_length.to_string());
 
     while timer_length != 0 {
