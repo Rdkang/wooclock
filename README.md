@@ -35,6 +35,7 @@ cargo test
 - [ ] TODO: shell completion
 - [ ] TODO: short flag for the options
 - [ ] TODO: split code to separate files for each clock type and general functions
+- [ ] TODO: better notification formatting
 
 ## Show your support
 
