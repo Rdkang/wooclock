@@ -1,5 +1,5 @@
 # Welcome to wooclock 👋
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000)
+![Version](https://img.shields.io/badge/version-1.0.2-blue.svg?cacheSeconds=2592000)
 
 > an opinionated clock written for my needs
 
