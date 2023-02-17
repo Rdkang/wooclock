@@ -7,7 +7,6 @@ use notify_rust::Notification;
 use opener::open;
 use rand::seq::IteratorRandom;
 use rofi::Rofi;
-use std::fmt::Arguments;
 use std::io::ErrorKind;
 use std::thread::sleep;
 use std::time::{Duration, SystemTime};
@@ -94,8 +93,8 @@ fn main() {
 fn stop_stopwatch(stop_path: std::string::String) {
     match std::fs::File::create(stop_path) {
         Ok(_msg) => {
-            let current_time: u64 = read_time(Paths::StopwatchStop.to_string());
             notify(&format!("stopwatch ran for {}", time_formatted(current_time)));
+            let current_time: u64 = read_time(Paths::Stopwatch.to_string());
         }
         Err(error) => {
             eprintln!("problem in stop_process {}", error);
