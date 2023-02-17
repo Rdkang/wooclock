@@ -93,8 +93,8 @@ fn main() {
 fn stop_stopwatch(stop_path: std::string::String) {
     match std::fs::File::create(stop_path) {
         Ok(_msg) => {
-            notify(&format!("stopwatch ran for {}", time_formatted(current_time)));
             let current_time: u64 = read_time(Paths::Stopwatch.to_string());
+            notify(&format!("stopwatch ran for {}", time_formatted(current_time)));
         }
         Err(error) => {
             eprintln!("problem in stop_process {}", error);
@@ -281,12 +281,11 @@ fn rofi_get_length() -> i32 {
         Err(rofi::Error::Blank) => std::process::exit(1),
         Err(rofi::Error::Interrupted) => std::process::exit(1),
         Err(error) => {
-            let message = format!("rofi had a problem getting your length: {}",error);
+            let message = format!("rofi had a problem getting your length: {}", error);
             notify(&message);
             print(message.red());
             std::process::exit(30)
-
-        },
+        }
     };
     let timer_length = user_choice.parse::<i32>().unwrap();
     timer_length * 60
