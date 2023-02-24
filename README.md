@@ -20,6 +20,9 @@ wooclock stopwatch rofi
 ```sh
 cargo test
 ```
+## Contributing
+
+If you'd like to contribute to wooclock, please fork the repository and submit a pull request. Contributions are always welcome!
 
 ## Author
 
