@@ -3,23 +3,63 @@
 
 > A command-line opinionated clock program written for my needs
 
-## Install
+## Installation
 
-```sh
+To build wooclock, you'll need to have Rust installed on your system. You can install Rust by following the instructions [here](https://www.rust-lang.org/tools/install).
+
+Once Rust is installed, you can download and compile the wooclock program by cloning this repository and running the following command:
+
+```bash
+git clone https://github.com/Rdkang/wooclock
+```
+
+```bash
 cargo build --release
 ```
+This will compile the wooclock program and create an executable file in the `target/release` directory.
 
 ## Usage
 
-```sh
-wooclock stopwatch rofi
+To use wooclock, simply run the executable file with no arguments to get the possible options or with `--help`:
+
+```shell
+./wooclock
 ```
 
-## Run tests
+### Subcommands
 
-```sh
-cargo test
+Wooclock includes the following subcommands:
+`stopwatch`
+
+The stopwatch subcommand allows you to start and stop a stopwatch.
+Flags
 ```
+    new: Starts a new stopwatch
+    status: Shows the current status of the stopwatch
+    stop: Stops the stopwatch
+    rofi: Displays the stopwatch in a rofi dialog
+```
+
+Example
+
+To start a new stopwatch, run the following command:
+
+```shell
+wooclock stopwatch new
+```
+
+`timer`
+
+The timer subcommand allows you to set a timer for a specific amount of time.
+Flags
+
+```
+    new: will ask for timer length in rofi input and then start a new timer
+    status: Shows the current status of the timer
+    stop: Stops the timer
+    rofi: Displays the timer options in a rofi dialog
+```
+
 ## Contributing
 
 If you'd like to contribute to wooclock, please fork the repository and submit a pull request. Contributions are always welcome!
