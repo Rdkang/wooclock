@@ -1,4 +1,5 @@
 # Welcome to wooclock 👋
+
 ![Version](https://img.shields.io/badge/version-1.0.2-blue.svg?cacheSeconds=2592000)
 
 > A command-line opinionated clock program written for my needs
@@ -16,6 +17,7 @@ git clone https://github.com/Rdkang/wooclock
 ```bash
 cargo build --release
 ```
+
 This will compile the wooclock program and create an executable file in the `target/release` directory.
 
 ## Usage
@@ -33,6 +35,7 @@ Wooclock includes the following subcommands:
 
 The stopwatch subcommand allows you to start and stop a stopwatch.
 Flags
+
 ```
     new: Starts a new stopwatch
     status: Shows the current status of the stopwatch
@@ -64,13 +67,8 @@ Flags
 
 If you'd like to contribute to wooclock, please fork the repository and submit a pull request. Contributions are always welcome!
 
-## Author
-
-👤 **rdkang**
-
-* Github: [@rdkang](https://github.com/rdkang)
-
 ## Roadmap
+
 - [ ] TODO: dry principle for when using intertwine the cli arguments, and should work with timer as well. with the name of ClockType as the prompt
 - [ ] TODO: handle sigterm. And create a stop file
 - [ ] TODO: make sure only one instance
@@ -84,6 +82,6 @@ If you'd like to contribute to wooclock, please fork the repository and submit a
 
 Give a ⭐️ if this project helped you!
 
+---
 
-***
 _This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_

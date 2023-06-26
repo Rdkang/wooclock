@@ -3,8 +3,8 @@ name = "wooclock"
 version = "1.0.2"
 edition = "2021"
 authors = ["rdkang"]
-homepage = "wooclock.rdkang.xyz"
-description = "a timer and stopwatch that controlled by cli"
+homepage = "wooclock.rdkang.space"
+description = "a optionated timer and stopwatch that controlled by cli"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
